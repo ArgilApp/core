@@ -1,4 +1,4 @@
-FROM golang:alpine
+FROM golang:latest
 ENV GIN_MODE=release
 WORKDIR /var/argil/
 ADD core /var/argil/
