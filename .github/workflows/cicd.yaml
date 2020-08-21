@@ -24,7 +24,7 @@ jobs:
         go mod download
         go build .
 
-    - name: Upload built frontend artifact
+    - name: Upload built core artifact
       uses: actions/upload-artifact@v2.1.4
       with:
         name: core
