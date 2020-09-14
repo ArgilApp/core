@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/argilapp/core/controllers/user"
+	"github.com/argilapp/core/controllers/auth"
 )
 
 func SetupRouter() *gin.Engine {
@@ -30,8 +31,8 @@ func SetupRouter() *gin.Engine {
 
 	authGroup := r.Group("/auth")
 	{
-		authGroup.POST("/", NotImplemented)
-		authGroup.DELETE("/", NotImplemented)
+		authGroup.POST("", auth.Authenticate)
+		authGroup.DELETE("", NotImplemented)
 	}
 
 	return r

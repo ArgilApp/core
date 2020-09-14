@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/argilapp/core/binarymanager"
 	"github.com/argilapp/core/binarymanager/provider"
@@ -15,9 +16,25 @@ func main() {
 	}
 	binarymanager.AddProvider(localfs)
 
-	// h := sha256.New()
-	// h.Write([]byte("hello world\n"))
-	// fmt.Printf("%x", h.Sum(nil))
+	stream, err := os.Open("./tmp/example_file")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer stream.Close()
 
-	log.Println(binarymanager.HashExists("a948904f2f0f479b8f8197694b30184b0d2ed1c1cd2a1ec0fb85d299a192a447"))
+	hashes, err := binarymanager.Upload(stream)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Println(hashes.SHA256)
+
+	var exists = binarymanager.HashExists(hashes.SHA256)
+
+	if exists {
+		log.Println("Found hash", hashes.SHA256)
+	} else {
+		log.Fatalln("Could not find hash", hashes.SHA256)
+	}
 }
