@@ -5,15 +5,17 @@ import (
 	"crypto/sha1"
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"io"
 	"log"
-	"os"
 	"strings"
 
 	"github.com/argilapp/core/binarymanager/provider"
 	"golang.org/x/crypto/sha3"
 )
+
+const BufferSize = 100
 
 var providers []provider.Provider
 
@@ -34,10 +36,10 @@ func ListProviders() []provider.Provider {
 }
 
 func HashExists(hash string) bool {
-	var chunkedPath = chunkHashPath(hash)
+	chunkedPath := chunkHashPath(hash)
 
 	for _, p := range providers {
-		var exists = p.FileExists(chunkedPath)
+		exists := p.FileExists(chunkedPath)
 
 		if exists {
 			return true
@@ -46,8 +48,7 @@ func HashExists(hash string) bool {
 	return false
 }
 
-func Upload(stream *os.File) (provider.Hashes, error) {
-	const BufferSize = 100
+func Upload(stream io.Reader) (provider.Hashes, error) {
 	buffer := make([]byte, BufferSize)
 
 	// Currently we assume the first provider is the one to write to
@@ -102,6 +103,40 @@ func Upload(stream *os.File) (provider.Hashes, error) {
 	}
 
 	return hashes, nil
+}
+
+func Download(hash string, writer io.Writer) error {
+	chunkedPath := chunkHashPath(hash)
+
+	for _, p := range providers {
+		exists := p.FileExists(chunkedPath)
+
+		if exists {
+			downloadFile := p.CreateDownloadHandle(chunkedPath)
+
+			buffer := make([]byte, BufferSize)
+			for {
+				bytesread, err := downloadFile.Read(buffer)
+
+				if err != nil {
+					if err != io.EOF {
+						fmt.Println(err)
+					}
+
+					break
+				}
+
+				readBuffer := buffer[:bytesread]
+
+				writer.Write(readBuffer)
+			}
+
+			downloadFile.Cleanup()
+
+			return nil
+		}
+	}
+	return errors.New(fmt.Sprintf("Hash %s could not be found", hash))
 }
 
 func chunkHashPath(hash string) string {

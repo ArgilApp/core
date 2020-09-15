@@ -6,6 +6,7 @@ require (
 	github.com/gin-gonic/gin v1.6.3
 	github.com/google/uuid v1.1.2
 	github.com/kr/pretty v0.1.0 // indirect
+	github.com/pkg/errors v0.9.1
 	github.com/ulule/deepcopier v0.0.0-20200430083143-45decc6639b6
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a
 	golang.org/x/sys v0.0.0-20200812155832-6a926be9bd1d // indirect

@@ -28,12 +28,17 @@ func main() {
 		log.Fatal(err)
 	}
 
-	log.Println(hashes.SHA256)
-
 	var exists = binarymanager.HashExists(hashes.SHA256)
 
 	if exists {
 		log.Println("Found hash", hashes.SHA256)
+
+		tempDownloadFile, _ := os.Create("./tmp/downloaded")
+		err = binarymanager.Download(hashes.SHA256, tempDownloadFile)
+
+		if err != nil {
+			log.Fatal(err)
+		}
 	} else {
 		log.Fatalln("Could not find hash", hashes.SHA256)
 	}

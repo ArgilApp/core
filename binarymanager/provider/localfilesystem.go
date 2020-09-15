@@ -49,8 +49,6 @@ func (p LocalFileSystem) CreateUploadHandle() UploadFile {
 }
 
 func (p LocalFileSystem) MoveFile(oldPath string, newPath string) error {
-	log.Println(oldPath, newPath)
-
 	// create the base directory if it doesn't already exist
 	baseDirectory := filepath.Dir(newPath)
 	os.MkdirAll(baseDirectory, os.ModePerm)
@@ -59,8 +57,13 @@ func (p LocalFileSystem) MoveFile(oldPath string, newPath string) error {
 	return err
 }
 
-func (p LocalFileSystem) Download(path string) ([]byte, error) {
-	return []byte{}, nil
+func (p LocalFileSystem) CreateDownloadHandle(path string) DownloadFile {
+	downloadFile := &LocalFileSystemDownloadFile{
+		LocalFileSystem: p,
+	}
+	downloadFile.Initialize(path)
+
+	return downloadFile
 }
 
 func (p LocalFileSystem) Delete(path string) error {

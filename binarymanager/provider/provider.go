@@ -7,7 +7,7 @@ type Provider interface {
 	GetFileInfo(path string) (string, error)
 	CreateUploadHandle() UploadFile
 	MoveFile(oldPath string, newPath string) error
-	Download(path string) ([]byte, error)
+	CreateDownloadHandle(path string) DownloadFile
 	Delete(path string) error
 	GetFullFilePath(path string) string
 	GetInProgressFilePath(path string) string
@@ -24,6 +24,12 @@ type UploadFile interface {
 	Initialize()
 	Write(bytes []byte) error
 	GetIdentifier() string
+	Cleanup()
+}
+
+type DownloadFile interface {
+	Initialize(path string)
+	Read(buffer []byte) (int, error)
 	Cleanup()
 }
 
