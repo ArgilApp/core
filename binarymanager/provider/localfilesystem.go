@@ -29,14 +29,15 @@ func (p LocalFileSystem) Initialize() error {
 }
 
 func (p LocalFileSystem) FileExists(path string) bool {
-	var fullPath = p.GetFullFilePath(path)
+	fullPath := p.GetFullFilePath(path)
 
 	_, err := os.Stat(fullPath)
 	return !os.IsNotExist(err)
 }
 
-func (p LocalFileSystem) GetFileInfo(path string) (string, error) {
-	return "NOT IMPLEMENTED", nil
+func (p LocalFileSystem) GetFileInfo(path string) (FileInfo, error) {
+	fileInfo := FileInfo{}
+	return fileInfo, errors.New("File info not implemented yet")
 }
 
 func (p LocalFileSystem) CreateUploadHandle() UploadFile {
@@ -48,12 +49,14 @@ func (p LocalFileSystem) CreateUploadHandle() UploadFile {
 	return uploadFile
 }
 
-func (p LocalFileSystem) MoveFile(oldPath string, newPath string) error {
+func (p LocalFileSystem) MoveFile(oldIdentifier string, path string) error {
+	oldPath := p.GetInProgressFilePath(oldIdentifier)
+	newFullPath := p.GetFullFilePath(path)
 	// create the base directory if it doesn't already exist
-	baseDirectory := filepath.Dir(newPath)
+	baseDirectory := filepath.Dir(newFullPath)
 	os.MkdirAll(baseDirectory, os.ModePerm)
 
-	err := os.Rename(oldPath, newPath)
+	err := os.Rename(oldPath, newFullPath)
 	return err
 }
 
@@ -67,20 +70,28 @@ func (p LocalFileSystem) CreateDownloadHandle(path string) DownloadFile {
 }
 
 func (p LocalFileSystem) Delete(path string) error {
-	return nil
+	fullPath := p.GetFullFilePath(path)
+	err := os.RemoveAll(fullPath) // we should also cleanup all the empty directories that could be left behind here
+	return err
 }
 
 func (p LocalFileSystem) GetFullFilePath(path string) string {
-	var fullPath = filepath.Join(p.StorageDirectory, "files", path)
+	fullPath := filepath.Join(p.StorageDirectory, "files", path)
 
-	var fullAbsPath, _ = filepath.Abs(fullPath) //probably should use this error
+	fullAbsPath, _ := filepath.Abs(fullPath) //probably should use this error
 	return fullAbsPath
 }
 
 // should probably be cleaned up
 func (p LocalFileSystem) GetInProgressFilePath(path string) string {
-	var fullPath = filepath.Join(p.StorageDirectory, "inprogress", path)
+	fullPath := filepath.Join(p.StorageDirectory, "inprogress", path)
 
-	var fullAbsPath, _ = filepath.Abs(fullPath) //probably should use this error
+	fullAbsPath, _ := filepath.Abs(fullPath) //probably should use this error
 	return fullAbsPath
+}
+
+func (p LocalFileSystem) SupportedDownloadAccessTypes() []AccessType {
+	return []AccessType{
+		Streamable,
+	}
 }

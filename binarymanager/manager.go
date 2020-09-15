@@ -94,8 +94,8 @@ func Upload(stream io.Reader) (provider.Hashes, error) {
 
 	uploadFile.Cleanup()
 
-	oldPath := uploadProvider.GetInProgressFilePath(uploadFile.GetIdentifier())
-	newPath := uploadProvider.GetFullFilePath(chunkHashPath(hashes.SHA256))
+	oldPath := uploadFile.GetIdentifier()
+	newPath := chunkHashPath(hashes.SHA256)
 	uploadErr := uploadProvider.MoveFile(oldPath, newPath)
 
 	if uploadErr != nil {
@@ -137,6 +137,16 @@ func Download(hash string, writer io.Writer) error {
 		}
 	}
 	return errors.New(fmt.Sprintf("Hash %s could not be found", hash))
+}
+
+func Delete(hash string) error {
+	chunkedPath := chunkHashPath(hash)
+
+	for _, p := range providers {
+		p.Delete(chunkedPath)
+	}
+
+	return nil
 }
 
 func chunkHashPath(hash string) string {

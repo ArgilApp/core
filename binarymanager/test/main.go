@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"time"
 
 	"github.com/argilapp/core/binarymanager"
 	"github.com/argilapp/core/binarymanager/provider"
@@ -38,6 +39,12 @@ func main() {
 
 		if err != nil {
 			log.Fatal(err)
+		}
+
+		time.Sleep(3 * time.Second)
+		delErr := binarymanager.Delete(hashes.SHA256)
+		if delErr != nil {
+			log.Fatal(delErr)
 		}
 	} else {
 		log.Fatalln("Could not find hash", hashes.SHA256)

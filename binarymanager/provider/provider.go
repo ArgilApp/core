@@ -4,15 +4,17 @@ type Provider interface {
 	GetID() string
 	Initialize() error
 	FileExists(path string) bool
-	GetFileInfo(path string) (string, error)
+	GetFileInfo(path string) (FileInfo, error)
 	CreateUploadHandle() UploadFile
 	MoveFile(oldPath string, newPath string) error
 	CreateDownloadHandle(path string) DownloadFile
 	Delete(path string) error
 	GetFullFilePath(path string) string
 	GetInProgressFilePath(path string) string
+	SupportedDownloadAccessTypes() []AccessType
 }
 
+// AccessType is not implemented yet
 type AccessType int
 
 const (
@@ -38,4 +40,7 @@ type Hashes struct {
 	SHA1   string
 	SHA256 string
 	SHA3   string
+}
+
+type FileInfo struct {
 }
