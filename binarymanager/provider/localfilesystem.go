@@ -12,11 +12,11 @@ type LocalFileSystem struct {
 	StorageDirectory string
 }
 
-func (p LocalFileSystem) GetID() string {
+func (p *LocalFileSystem) GetID() string {
 	return p.ID
 }
 
-func (p LocalFileSystem) Initialize() error {
+func (p *LocalFileSystem) Initialize() error {
 	if p.ID == "" {
 		return errors.New("ID must be set")
 	}
@@ -28,28 +28,28 @@ func (p LocalFileSystem) Initialize() error {
 	return nil
 }
 
-func (p LocalFileSystem) FileExists(path string) bool {
+func (p *LocalFileSystem) FileExists(path string) bool {
 	fullPath := p.GetFullFilePath(path)
 
 	_, err := os.Stat(fullPath)
 	return !os.IsNotExist(err)
 }
 
-func (p LocalFileSystem) GetFileInfo(path string) (FileInfo, error) {
+func (p *LocalFileSystem) GetFileInfo(path string) (FileInfo, error) {
 	fileInfo := FileInfo{}
 	return fileInfo, errors.New("File info not implemented yet")
 }
 
-func (p LocalFileSystem) CreateUploadHandle() UploadFile {
+func (p *LocalFileSystem) CreateUploadHandle() UploadFile {
 	uploadFile := &LocalFileSystemUploadFile{
-		LocalFileSystem: p,
+		LocalFileSystem: *p,
 	}
 	uploadFile.Initialize()
 
 	return uploadFile
 }
 
-func (p LocalFileSystem) MoveFile(oldIdentifier string, path string) error {
+func (p *LocalFileSystem) MoveFile(oldIdentifier string, path string) error {
 	oldPath := p.GetInProgressFilePath(oldIdentifier)
 	newFullPath := p.GetFullFilePath(path)
 	// create the base directory if it doesn't already exist
@@ -60,22 +60,22 @@ func (p LocalFileSystem) MoveFile(oldIdentifier string, path string) error {
 	return err
 }
 
-func (p LocalFileSystem) CreateDownloadHandle(path string) DownloadFile {
+func (p *LocalFileSystem) CreateDownloadHandle(path string) DownloadFile {
 	downloadFile := &LocalFileSystemDownloadFile{
-		LocalFileSystem: p,
+		LocalFileSystem: *p,
 	}
 	downloadFile.Initialize(path)
 
 	return downloadFile
 }
 
-func (p LocalFileSystem) Delete(path string) error {
+func (p *LocalFileSystem) Delete(path string) error {
 	fullPath := p.GetFullFilePath(path)
 	err := os.RemoveAll(fullPath) // we should also cleanup all the empty directories that could be left behind here
 	return err
 }
 
-func (p LocalFileSystem) GetFullFilePath(path string) string {
+func (p *LocalFileSystem) GetFullFilePath(path string) string {
 	fullPath := filepath.Join(p.StorageDirectory, "files", path)
 
 	fullAbsPath, _ := filepath.Abs(fullPath) //probably should use this error
@@ -83,14 +83,14 @@ func (p LocalFileSystem) GetFullFilePath(path string) string {
 }
 
 // should probably be cleaned up
-func (p LocalFileSystem) GetInProgressFilePath(path string) string {
+func (p *LocalFileSystem) GetInProgressFilePath(path string) string {
 	fullPath := filepath.Join(p.StorageDirectory, "inprogress", path)
 
 	fullAbsPath, _ := filepath.Abs(fullPath) //probably should use this error
 	return fullAbsPath
 }
 
-func (p LocalFileSystem) SupportedDownloadAccessTypes() []AccessType {
+func (p *LocalFileSystem) SupportedDownloadAccessTypes() []AccessType {
 	return []AccessType{
 		Streamable,
 	}
