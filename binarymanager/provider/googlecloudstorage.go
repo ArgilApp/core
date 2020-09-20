@@ -36,7 +36,6 @@ func (p *GoogleCloudStorage) Initialize() error {
 	if err != nil {
 		return fmt.Errorf("storage.NewClient: %v", err)
 	}
-	// defer client.Close()
 
 	p.Client = client
 	p.Context = &ctx
@@ -75,12 +74,11 @@ func (p *GoogleCloudStorage) MoveFile(oldIdentifier string, path string) error {
 	src := p.Client.Bucket(p.Bucket).Object(oldPath)
 	dst := p.Client.Bucket(p.Bucket).Object(newFullPath)
 
-	// refactor this
 	if _, err := dst.CopierFrom(src).Run(*p.Context); err != nil {
-		return fmt.Errorf("Object(%q).CopierFrom(%q).Run: %v", oldPath, newFullPath, err)
+		return fmt.Errorf("Failed copying %q to %q: %v", oldPath, newFullPath, err)
 	}
 	if err := src.Delete(*p.Context); err != nil {
-		return fmt.Errorf("Object(%q).Delete: %v", oldPath, err)
+		return fmt.Errorf("Failed deleting %q: %v", oldPath, err)
 	}
 
 	return nil

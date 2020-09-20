@@ -35,8 +35,8 @@ func ListProviders() []provider.Provider {
 	return providers
 }
 
-func HashExists(hash string) bool {
-	chunkedPath := chunkHashPath(hash)
+func HashExists(hashes provider.Hashes) bool {
+	chunkedPath := chunkHashPath(hashes)
 
 	for _, p := range providers {
 		exists := p.FileExists(chunkedPath)
@@ -95,7 +95,7 @@ func Upload(stream io.Reader) (provider.Hashes, error) {
 	uploadFile.Cleanup()
 
 	oldPath := uploadFile.GetIdentifier()
-	newPath := chunkHashPath(hashes.SHA256)
+	newPath := chunkHashPath(hashes)
 
 	var uploadErr error
 
@@ -112,8 +112,8 @@ func Upload(stream io.Reader) (provider.Hashes, error) {
 	return hashes, nil
 }
 
-func Download(hash string, writer io.Writer) error {
-	chunkedPath := chunkHashPath(hash)
+func Download(hashes provider.Hashes, writer io.Writer) error {
+	chunkedPath := chunkHashPath(hashes)
 
 	for _, p := range providers {
 		exists := p.FileExists(chunkedPath)
@@ -143,11 +143,11 @@ func Download(hash string, writer io.Writer) error {
 			return nil
 		}
 	}
-	return errors.New(fmt.Sprintf("Hash %s could not be found", hash))
+	return errors.New(fmt.Sprintf("Hash %s could not be found", hashes.SHA3))
 }
 
-func Delete(hash string) error {
-	chunkedPath := chunkHashPath(hash)
+func Delete(hashes provider.Hashes) error {
+	chunkedPath := chunkHashPath(hashes)
 
 	for _, p := range providers {
 		p.Delete(chunkedPath)
@@ -156,7 +156,8 @@ func Delete(hash string) error {
 	return nil
 }
 
-func chunkHashPath(hash string) string {
+func chunkHashPath(hashes provider.Hashes) string {
+	hash := hashes.SHA3 // we usde SHA3 for everything storage saving related
 	var chunks []string
 	runes := []rune(hash) // split the string into a slice of each individual character
 
