@@ -10,12 +10,16 @@ import (
 )
 
 func main() {
-	var localfs provider.Provider
-	localfs = provider.LocalFileSystem{
-		ID:               "localfs-test",
-		StorageDirectory: "./tmp/localfs",
+	var prov provider.Provider
+	// prov = &provider.LocalFileSystem{
+	// 	ID:               "localfs-test",
+	// 	StorageDirectory: "./tmp/localfs",
+	// }
+	prov = &provider.GoogleCloudStorage{
+		ID:     "gcs-test",
+		Bucket: "argil-user-content-test",
 	}
-	binarymanager.AddProvider(localfs)
+	binarymanager.AddProvider(prov)
 
 	stream, err := os.Open("./tmp/example_file")
 	if err != nil {
@@ -28,6 +32,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	log.Println(hashes)
 
 	var exists = binarymanager.HashExists(hashes.SHA256)
 

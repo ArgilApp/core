@@ -96,7 +96,14 @@ func Upload(stream io.Reader) (provider.Hashes, error) {
 
 	oldPath := uploadFile.GetIdentifier()
 	newPath := chunkHashPath(hashes.SHA256)
-	uploadErr := uploadProvider.MoveFile(oldPath, newPath)
+
+	var uploadErr error
+
+	// if uploadProvider.FileExists(hashes.SHA256) {
+	// 	uploadErr = uploadProvider.Delete(oldPath)
+	// } else {
+	uploadErr = uploadProvider.MoveFile(oldPath, newPath)
+	// }
 
 	if uploadErr != nil {
 		return provider.Hashes{}, uploadErr
