@@ -8,6 +8,7 @@ type Provider interface {
 	CreateUploadHandle() UploadFile
 	MoveFile(oldPath string, newPath string) error
 	CreateDownloadHandle(path string) DownloadFile
+	GetDirectDownloadLink(path string) (string, error)
 	Delete(path string) error
 	GetFullFilePath(path string) string
 	GetInProgressFilePath(path string) string

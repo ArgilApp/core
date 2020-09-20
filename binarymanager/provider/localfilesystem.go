@@ -65,6 +65,10 @@ func (p *LocalFileSystem) CreateDownloadHandle(path string) DownloadFile {
 	return downloadFile
 }
 
+func (p *LocalFileSystem) GetDirectDownloadLink(path string) (string, error) {
+	return "N/A", errors.New("Local file system does not support direct download links")
+}
+
 func (p *LocalFileSystem) Delete(path string) error {
 	err := os.RemoveAll(path) // we should also cleanup all the empty directories that could be left behind here
 	return err

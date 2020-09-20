@@ -148,6 +148,20 @@ func Download(hashes provider.Hashes, writer io.Writer) error {
 	return errors.New(fmt.Sprintf("Hash %s could not be found", hashes.SHA3))
 }
 
+func GetDirectDownloadLink(hashes provider.Hashes) (string, error) {
+	chunkedPath := chunkHashPath(hashes)
+
+	for _, p := range providers {
+		directLink, err := p.GetDirectDownloadLink(p.GetFullFilePath(chunkedPath))
+
+		if err == nil {
+			return directLink, nil
+		}
+	}
+
+	return "", errors.New("Unable to obtain a direct download link")
+}
+
 func Delete(hashes provider.Hashes) error {
 	chunkedPath := chunkHashPath(hashes)
 

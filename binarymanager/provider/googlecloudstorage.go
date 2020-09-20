@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"path/filepath"
+	"time"
 
 	"cloud.google.com/go/storage"
 )
@@ -86,6 +87,17 @@ func (p *GoogleCloudStorage) CreateDownloadHandle(path string) DownloadFile {
 	downloadFile.Initialize(path)
 
 	return downloadFile
+}
+
+func (p *GoogleCloudStorage) GetDirectDownloadLink(path string) (string, error) {
+	url, err := storage.SignedURL(p.Bucket, path, &storage.SignedURLOptions{
+		Method:  "GET",
+		Expires: time.Now().Add(15 * time.Minute),
+		//needs GoogleAccessID & PrivateKey passed to actually work
+	})
+
+	log.Println(err)
+	return url, err
 }
 
 func (p *GoogleCloudStorage) Delete(path string) error {
