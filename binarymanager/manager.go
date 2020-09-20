@@ -39,7 +39,7 @@ func HashExists(hashes provider.Hashes) bool {
 	chunkedPath := chunkHashPath(hashes)
 
 	for _, p := range providers {
-		exists := p.FileExists(chunkedPath)
+		exists := p.FileExists(p.GetFullFilePath(chunkedPath))
 
 		if exists {
 			return true
@@ -94,16 +94,18 @@ func Upload(stream io.Reader) (provider.Hashes, error) {
 
 	uploadFile.Cleanup()
 
-	oldPath := uploadFile.GetIdentifier()
-	newPath := chunkHashPath(hashes)
+	oldPath := uploadProvider.GetInProgressFilePath(uploadFile.GetIdentifier())
+	newPath := uploadProvider.GetFullFilePath(chunkHashPath(hashes))
 
 	var uploadErr error
 
-	// if uploadProvider.FileExists(hashes.SHA256) {
-	// 	uploadErr = uploadProvider.Delete(oldPath)
-	// } else {
-	uploadErr = uploadProvider.MoveFile(oldPath, newPath)
-	// }
+	// if the file already existed in the end then we just delete the inprogress
+	//    if it's new we move it to it's new permanent place in files
+	if uploadProvider.FileExists(newPath) {
+		uploadErr = uploadProvider.Delete(oldPath)
+	} else {
+		uploadErr = uploadProvider.MoveFile(oldPath, newPath)
+	}
 
 	if uploadErr != nil {
 		return provider.Hashes{}, uploadErr
@@ -116,7 +118,7 @@ func Download(hashes provider.Hashes, writer io.Writer) error {
 	chunkedPath := chunkHashPath(hashes)
 
 	for _, p := range providers {
-		exists := p.FileExists(chunkedPath)
+		exists := p.FileExists(p.GetFullFilePath(chunkedPath))
 
 		if exists {
 			downloadFile := p.CreateDownloadHandle(chunkedPath)
@@ -150,7 +152,7 @@ func Delete(hashes provider.Hashes) error {
 	chunkedPath := chunkHashPath(hashes)
 
 	for _, p := range providers {
-		p.Delete(chunkedPath)
+		p.Delete(p.GetFullFilePath(chunkedPath))
 	}
 
 	return nil

@@ -44,9 +44,7 @@ func (p *GoogleCloudStorage) Initialize() error {
 }
 
 func (p *GoogleCloudStorage) FileExists(path string) bool {
-	fullPath := p.GetFullFilePath(path)
-
-	obj := p.Client.Bucket(p.Bucket).Object(fullPath)
+	obj := p.Client.Bucket(p.Bucket).Object(path)
 
 	_, err := obj.Attrs(*p.Context)
 
@@ -67,15 +65,12 @@ func (p *GoogleCloudStorage) CreateUploadHandle() UploadFile {
 	return uploadFile
 }
 
-func (p *GoogleCloudStorage) MoveFile(oldIdentifier string, path string) error {
-	oldPath := p.GetInProgressFilePath(oldIdentifier)
-	newFullPath := p.GetFullFilePath(path)
-
+func (p *GoogleCloudStorage) MoveFile(oldPath string, newPath string) error {
 	src := p.Client.Bucket(p.Bucket).Object(oldPath)
-	dst := p.Client.Bucket(p.Bucket).Object(newFullPath)
+	dst := p.Client.Bucket(p.Bucket).Object(newPath)
 
 	if _, err := dst.CopierFrom(src).Run(*p.Context); err != nil {
-		return fmt.Errorf("Failed copying %q to %q: %v", oldPath, newFullPath, err)
+		return fmt.Errorf("Failed copying %q to %q: %v", oldPath, newPath, err)
 	}
 	if err := src.Delete(*p.Context); err != nil {
 		return fmt.Errorf("Failed deleting %q: %v", oldPath, err)
@@ -94,9 +89,7 @@ func (p *GoogleCloudStorage) CreateDownloadHandle(path string) DownloadFile {
 }
 
 func (p *GoogleCloudStorage) Delete(path string) error {
-	fullPath := p.GetFullFilePath(path)
-
-	obj := p.Client.Bucket(p.Bucket).Object(fullPath)
+	obj := p.Client.Bucket(p.Bucket).Object(path)
 
 	err := obj.Delete(*p.Context)
 

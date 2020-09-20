@@ -29,9 +29,7 @@ func (p *LocalFileSystem) Initialize() error {
 }
 
 func (p *LocalFileSystem) FileExists(path string) bool {
-	fullPath := p.GetFullFilePath(path)
-
-	_, err := os.Stat(fullPath)
+	_, err := os.Stat(path)
 	return !os.IsNotExist(err)
 }
 
@@ -49,14 +47,12 @@ func (p *LocalFileSystem) CreateUploadHandle() UploadFile {
 	return uploadFile
 }
 
-func (p *LocalFileSystem) MoveFile(oldIdentifier string, path string) error {
-	oldPath := p.GetInProgressFilePath(oldIdentifier)
-	newFullPath := p.GetFullFilePath(path)
+func (p *LocalFileSystem) MoveFile(oldPath string, newPath string) error {
 	// create the base directory if it doesn't already exist
-	baseDirectory := filepath.Dir(newFullPath)
+	baseDirectory := filepath.Dir(newPath)
 	os.MkdirAll(baseDirectory, os.ModePerm)
 
-	err := os.Rename(oldPath, newFullPath)
+	err := os.Rename(oldPath, newPath)
 	return err
 }
 
@@ -70,8 +66,7 @@ func (p *LocalFileSystem) CreateDownloadHandle(path string) DownloadFile {
 }
 
 func (p *LocalFileSystem) Delete(path string) error {
-	fullPath := p.GetFullFilePath(path)
-	err := os.RemoveAll(fullPath) // we should also cleanup all the empty directories that could be left behind here
+	err := os.RemoveAll(path) // we should also cleanup all the empty directories that could be left behind here
 	return err
 }
 
