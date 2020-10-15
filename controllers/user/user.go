@@ -11,8 +11,7 @@ import (
 
 //Get the current logged in user
 func GetUser(c *gin.Context) {
-	currentUser := &user.User{}
-	user.GetUserByID(currentUser, 4)
+	currentUser, _ := user.GetUserByID(1) // obviously not the right value
 
 	currentUserSelfView := &user.UserSelfView{}
 	deepcopier.Copy(currentUser).To(currentUserSelfView)
@@ -23,8 +22,7 @@ func GetUser(c *gin.Context) {
 func GetUserByUsername(c *gin.Context) {
 	username := c.Params.ByName("username")
 
-	searchedUser := &user.User{}
-	err := user.GetUserByUsername(searchedUser, username)
+	searchedUser, err := user.GetUserByUsername(username)
 
 	if err == nil {
 		searchedUserProfileView := &user.UserProfileView{}
