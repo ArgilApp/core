@@ -2,7 +2,9 @@ package user
 
 import (
 	"fmt"
+	"log"
 
+	"github.com/alexedwards/argon2id"
 	"github.com/argilapp/core/db"
 )
 
@@ -24,4 +26,39 @@ func GetUserByUsername(username string) (*User, error) {
 	}
 
 	return &user, nil
+}
+
+func Authenticate(username string, password string) bool {
+	user, err := GetUserByUsername(username)
+
+	if err != nil {
+		return false
+	}
+
+	passwordMatch := user.VerifyPassword(password)
+
+	return passwordMatch
+}
+
+func (u *User) SetPassword(password string) error {
+	hash, err := argon2id.CreateHash(password, argon2id.DefaultParams)
+
+	if err != nil {
+		return err
+	}
+
+	u.PasswordHash = hash
+
+	return nil
+}
+
+func (u *User) VerifyPassword(password string) bool {
+	match, err := argon2id.ComparePasswordAndHash(password, u.PasswordHash)
+
+	if err != nil {
+		log.Println("Failed verifying password", err)
+		return false
+	}
+
+	return match
 }

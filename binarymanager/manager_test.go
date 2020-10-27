@@ -4,22 +4,21 @@ import (
 	"os"
 	"testing"
 
-	"github.com/argilapp/core/binarymanager"
 	"github.com/argilapp/core/binarymanager/provider"
 )
 
 func CreateLocalFSProvider() {
 	var localfs provider.Provider
-	localfs = provider.LocalFileSystem{
+	localfs = &provider.LocalFileSystem{
 		ID:               "localfs-test",
-		StorageDirectory: "./tmp/teststorage",
+		StorageDirectory: "./tmp/localfs",
 	}
-	binarymanager.AddProvider(localfs)
+	AddProvider(localfs)
 }
 
 func TestAddProvider(t *testing.T) {
 	CreateLocalFSProvider()
-	for _, a := range binarymanager.ListProviders() {
+	for _, a := range ListProviders() {
 		if a.GetID() == "localfs-test" {
 			return
 		}
@@ -30,7 +29,7 @@ func TestAddProvider(t *testing.T) {
 func TestUpload(t *testing.T) {
 	CreateLocalFSProvider()
 	temporaryFile, _ := os.Create("./tmp/test-file-1")
-	binarymanager.Upload(temporaryFile)
+	Upload(temporaryFile)
 
 	//not done
 }
